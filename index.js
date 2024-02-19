@@ -52,10 +52,10 @@ app.post("/api/users/:_id/exercises", async (req, res) => {
     debugger
     const { _id } = req.params
     const { description, duration, date } = req.body
-    const userExist = await userModal.findById({ _id: _id })
+    const userExist = await userModal.findById(_id)
 
     if (userExist) {
-      const { username } = userExist._doc
+      const { username, _id } = userExist
       const dateString = date ? new Date(date) : new Date()
 
       const newExcercise = {
@@ -70,17 +70,19 @@ app.post("/api/users/:_id/exercises", async (req, res) => {
       await excercise.save()
       const returnExercise = {
         _id: _id,
+        username: username,
         description: description,
         duration: Number(duration),
-        date: dateString.toDateString(),
-        username: username,
+        date: new Date(excercise.date).toDateString(),
       }
 
       res.json(returnExercise).status(201)
+    } else {
+      res.send("Could not find user")
     }
   } catch (error) {
-    res.json({ error: error })
     console.log(error)
+    res.send("There was an error saving this exercise")
   }
 })
 
@@ -112,12 +114,11 @@ app.get("/api/users/:_id/logs", async (req, res) => {
       date: date.toDateString(),
     }
   })
-  debugger
   res.json({
     username: userExist._doc.username,
     _id,
     count: filterExercises.length,
-    logs: exerciseFormat,
+    log: exerciseFormat,
   })
 })
 
