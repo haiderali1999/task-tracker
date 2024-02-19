@@ -72,7 +72,7 @@ app.post("/api/users/:_id/exercises", async (req, res) => {
         _id: _id,
         description: description,
         duration: duration,
-        date: dateString,
+        date: dateString.toDateString(),
         username: username,
       }
 
@@ -104,11 +104,19 @@ app.get("/api/users/:_id/logs", async (req, res) => {
     filter.date = date
   }
   const filterExercises = await exerciseModel.find(filter).limit(+limit ?? 500)
+  const exerciseFormat = filterExercises.map((exercise) => {
+    const { description, duration, date } = exercise
+    return {
+      description: description,
+      duration: duration,
+      date: date.toDateString(),
+    }
+  })
   res.json({
     username: userExist.username,
     _id,
     count: filterExercises.length,
-    logs: filterExercises,
+    logs: exerciseFormat,
   })
 })
 
