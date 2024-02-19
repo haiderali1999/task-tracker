@@ -61,7 +61,7 @@ app.post("/api/users/:_id/exercises", async (req, res) => {
       const newExcercise = {
         user_id: _id,
         description,
-        duration,
+        duration: Number(duration),
         date: dateString,
         username: username,
       }
@@ -71,7 +71,7 @@ app.post("/api/users/:_id/exercises", async (req, res) => {
       const returnExercise = {
         _id: _id,
         description: description,
-        duration: duration,
+        duration: Number(duration),
         date: dateString.toDateString(),
         username: username,
       }
@@ -108,7 +108,7 @@ app.get("/api/users/:_id/logs", async (req, res) => {
     const { description, duration, date } = exercise
     return {
       description: description,
-      duration: duration,
+      duration: Number(duration),
       date: date.toDateString(),
     }
   })
