@@ -89,7 +89,7 @@ app.get("/api/users/:_id/logs", async (req, res) => {
   const { from, to, limit } = req.query
   const { _id } = req.params
   console.log(from, to, +limit, _id)
-  const userExist = userModal.findOne({ _id })
+  const userExist = await userModal.findById({ _id })
   if (!userExist) {
     res.json("User does not exist")
     return
@@ -112,8 +112,9 @@ app.get("/api/users/:_id/logs", async (req, res) => {
       date: date.toDateString(),
     }
   })
+  debugger
   res.json({
-    username: userExist.username,
+    username: userExist._doc.username,
     _id,
     count: filterExercises.length,
     logs: exerciseFormat,
