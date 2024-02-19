@@ -1,23 +1,23 @@
-const express = require('express')
+const express = require("express")
 const app = express()
-const cors = require('cors')
-require('dotenv').config()
-const mongoose = require('mongoose');
-const { userModal } = require("./models/user");
-const { exerciseModel } = require('./models/task');
+const cors = require("cors")
+require("dotenv").config()
+const mongoose = require("mongoose")
+const { userModal } = require("./models/user")
+const { exerciseModel } = require("./models/task")
 
 app.use(cors())
-app.use(express.static('public'))
-app.use(express.json());
+app.use(express.static("public"))
+app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/views/index.html')
-});
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/views/index.html")
+})
 
-main().catch(err => console.log(err));
+main().catch((err) => console.log(err))
 
 async function main() {
-  await mongoose.connect('mongodb://127.0.0.1:27017/test');
+  await mongoose.connect(process.env.MONGO_URL)
   console.log("mongo db connected")
 
   // use `await mongoose.connect('mongodb://user:password@127.0.0.1:27017/test');` if your database has auth enabled
@@ -35,7 +35,7 @@ app.get("/api/users", async (req, res) => {
 
 app.post("/api/users", async (req, res) => {
   try {
-    const { username } = req.body;
+    const { username } = req.body
 
     const newUser = new userModal({ username })
 
@@ -45,7 +45,6 @@ app.post("/api/users", async (req, res) => {
   } catch (error) {
     res.json(error)
   }
-
 })
 
 app.post("/api/users/:_id/exercises", async (req, res) => {
@@ -64,7 +63,7 @@ app.post("/api/users/:_id/exercises", async (req, res) => {
         description,
         duration,
         date: dateString,
-        username: username
+        username: username,
       }
 
       const excercise = new exerciseModel(newExcercise)
@@ -74,36 +73,32 @@ app.post("/api/users/:_id/exercises", async (req, res) => {
         description: description,
         duration: duration,
         date: dateString,
-        username: username
+        username: username,
       }
 
       res.json(returnExercise).status(201)
-
     }
   } catch (error) {
     res.json({ error: error })
     console.log(error)
   }
-
 })
 
 app.get("/api/users/:_id/logs", async (req, res) => {
   debugger
-  const { from, to, limit } = req.query;
-  const { _id } = req.params;
+  const { from, to, limit } = req.query
+  const { _id } = req.params
   console.log(from, to, +limit, _id)
   const userExist = userModal.findOne({ _id })
   if (!userExist) {
-    res.json("User does not exist");
-    return;
+    res.json("User does not exist")
+    return
   }
   let date = {}
-  if (from)
-    date["$gte"] = new Date(from).toDateString();
-  if (to)
-    date["$lte"] = new Date(to).toDateString();
+  if (from) date["$gte"] = new Date(from)
+  if (to) date["$lte"] = new Date(to)
   let filter = {
-    user_id: _id
+    user_id: _id,
   }
   if (from || to) {
     filter.date = date
@@ -113,15 +108,12 @@ app.get("/api/users/:_id/logs", async (req, res) => {
     username: userExist.username,
     _id,
     count: filterExercises.length,
-    logs: filterExercises
+    logs: filterExercises,
   })
 })
 
-
-
-const listener = app.listen(process.env.PORT || 3000, () => {
-  console.log('Your app is listening on port ' + listener.address().port)
+const listener = app.listen(process.env.PORT || 8080, () => {
+  console.log("Your app is listening on port " + listener.address().port)
 })
-
 
 // http://localhost:3000/api/users/65d19ab70df4950a48b22039/exercises
